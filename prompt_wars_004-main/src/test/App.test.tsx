@@ -4,8 +4,12 @@
  */
 
 import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import App from '../App';
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
 
 describe('App Component Core Tests', () => {
   it('renders branding header and KPI stats cleanly', () => {
@@ -36,5 +40,18 @@ describe('App Component Core Tests', () => {
     // Switch to AI Bot Tab
     fireEvent.click(aiTab);
     expect(screen.getAllByText('AURA Command Core').length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('refreshes the selected sector telemetry after syncing', () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0.9);
+
+    render(<App />);
+
+    const sectorButtons = screen.getAllByRole('button', { name: /Sector North Stand Lower/i });
+    fireEvent.click(sectorButtons[0]);
+    const refreshButtons = screen.getAllByLabelText('Refresh telemetry metrics');
+    fireEvent.click(refreshButtons[0]);
+
+    expect(screen.getAllByText('8,180').length).toBeGreaterThan(0);
   });
 });

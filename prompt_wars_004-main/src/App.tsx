@@ -12,7 +12,8 @@ import { TransitTracker } from './components/TransitTracker';
 import { MultilingualAssistant } from './components/MultilingualAssistant';
 import { AccessibilityCenter } from './components/AccessibilityCenter';
 import { StadiumSector, Incident, IncidentStatus, TransitHub, ChatMessage } from './types';
-import { INITIAL_SECTORS, INITIAL_INCIDENTS, TRANSIT_HUBS, OFFLINE_AI_ANSWERS } from './utils/stadiumData';
+import { INITIAL_SECTORS, INITIAL_INCIDENTS, TRANSIT_HUBS } from './utils/stadiumData';
+import { normalizeChecklist, formatTimeLabel, getIncidentFallbackChecklist, getAiFallbackResponse } from './utils/operations';
 import { LayoutGrid, Bot, ShieldAlert, Route, Eye } from 'lucide-react';
 
 export default function App() {
@@ -62,9 +63,10 @@ export default function App() {
 
   // Sync Telemetry metrics action
   const handleRefreshTelemetry = () => {
-    setSectors((prev) =>
-      prev.map((sec) => {
-        // Create small fluctuating variations
+    let nextSectors: StadiumSector[] = [];
+
+    setSectors((prev) => {
+      nextSectors = prev.map((sec) => {
         const delta = Math.round((Math.random() - 0.5) * 150);
         const nextOcc = Math.max(0, Math.min(sec.capacity, sec.currentOccupancy + delta));
         const nextTemp = Number((sec.temperature + (Math.random() - 0.5) * 0.8).toFixed(1));
@@ -75,12 +77,15 @@ export default function App() {
           temperature: nextTemp,
           gateFlowRate: nextFlow,
         };
-      })
-    );
-    // Auto-sync selected sector references
+      });
+      return nextSectors;
+    });
+
     if (selectedSector) {
-      const updated = sectors.find((s) => s.id === selectedSector.id);
-      if (updated) setSelectedSector(updated);
+      const updated = nextSectors.find((s) => s.id === selectedSector.id);
+      if (updated) {
+        setSelectedSector(updated);
+      }
     }
   };
 
@@ -127,12 +132,7 @@ export default function App() {
 
       const data = await response.json();
       const checklistStr = data.text;
-      
-      // Parse numbered lists into separate lines
-      const parsedChecklist = checklistStr
-        .split('\n')
-        .map((line: string) => line.replace(/^\d+\.\s+/, '').trim())
-        .filter((line: string) => line.length > 0 && !line.startsWith('#') && !line.startsWith('*'));
+      const parsedChecklist = normalizeChecklist(checklistStr);
 
       setIncidents((prev) =>
         prev.map((inc) =>
@@ -141,28 +141,7 @@ export default function App() {
       );
     } catch (err) {
       console.warn('Using offline mock fallback for AI Checklist.', err);
-      // Fail-safe offline mitigation checklists based on keywords
-      let fallbackChecklist = [
-        'Establish security perimeter around active sector entry doors.',
-        'Redirect non-ticketed incoming streams toward secondary transit plazas.',
-        'Inform general command center and standby medical groups.',
-        'Broadcast digital stadium guidance updates.'
-      ];
-
-      const titleLower = incident.title.toLowerCase();
-      if (titleLower.includes('crowd') || titleLower.includes('gate')) {
-        fallbackChecklist = OFFLINE_AI_ANSWERS['crowd management checklist']
-          .split('\n')
-          .map((line: string) => line.replace(/^\d+\.\s+/, '').trim())
-          .filter((line: string) => line.length > 0 && !line.startsWith('#') && !line.startsWith('*'));
-      } else if (titleLower.includes('medical') || titleLower.includes('heat')) {
-        fallbackChecklist = [
-          `Clear stretcher pathway to the patient's seat at ${incident.location}.`,
-          'Administer immediate cooling wraps, rehydration minerals, and perform primary assessment.',
-          'Form escort detail to clear emergency egress doors.',
-          'Prepare ambulance transport at Gate South.'
-        ];
-      }
+      const fallbackChecklist = getIncidentFallbackChecklist(incident.title, incident.location);
 
       setIncidents((prev) =>
         prev.map((inc) =>
@@ -176,7 +155,7 @@ export default function App() {
 
   // Chat Messenger interaction with secure proxy backend
   const handleSendMessage = async (text: string) => {
-    const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const timestamp = formatTimeLabel();
     const userMsg: ChatMessage = {
       id: `MSG-${Date.now()}`,
       sender: 'user',
@@ -210,34 +189,20 @@ export default function App() {
         id: `MSG-${Date.now() + 1}`,
         sender: 'ai',
         text: data.text,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        timestamp: formatTimeLabel(),
         sources: data.sources,
       };
 
       setChatMessages((prev) => [...prev, aiMsg]);
     } catch (err) {
       console.warn('Using fallback AI Response engine.', err);
-      // Smart Keyword matching offline fallback
-      let matchedText = `Command Core AI Fallback: I received your request for "${text}". The server-side Gemini API is currently in safe offline mode. 
-      
-      Try commands containing "crowd", "translate", "evacuation", or "transit" to preview specific system intelligence answers.`;
-      
-      const queryLower = text.toLowerCase();
-      if (queryLower.includes('crowd') || queryLower.includes('gate') || queryLower.includes('checklist')) {
-        matchedText = OFFLINE_AI_ANSWERS['crowd management checklist'];
-      } else if (queryLower.includes('translate') || queryLower.includes('update') || queryLower.includes('spanish')) {
-        matchedText = OFFLINE_AI_ANSWERS['translate operational update'];
-      } else if (queryLower.includes('evacuate') || queryLower.includes('evacuation') || queryLower.includes('sec-e2')) {
-        matchedText = OFFLINE_AI_ANSWERS['evacuation protocol'];
-      } else if (queryLower.includes('transit') || queryLower.includes('shuttle') || queryLower.includes('delay')) {
-        matchedText = OFFLINE_AI_ANSWERS['transit rerouting'];
-      }
+      const matchedText = getAiFallbackResponse(text);
 
       const aiMsg: ChatMessage = {
         id: `MSG-${Date.now() + 1}`,
         sender: 'ai',
         text: matchedText,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        timestamp: formatTimeLabel(),
       };
 
       setChatMessages((prev) => [...prev, aiMsg]);

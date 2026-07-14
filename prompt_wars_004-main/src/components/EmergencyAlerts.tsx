@@ -32,12 +32,14 @@ export const EmergencyAlerts: React.FC<EmergencyAlertsProps> = ({
   const [description, setDescription] = useState('');
   const [assignedUnit, setAssignedUnit] = useState('');
   const [formError, setFormError] = useState('');
+  const [submissionNotice, setSubmissionNotice] = useState('');
 
   const activeIncident = incidents.find((inc) => inc.id === selectedIncidentId);
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setFormError('');
+    setSubmissionNotice('');
 
     // Input Validation & XSS Prevention / Sanitization
     if (!title.trim() || !location.trim() || !description.trim()) {
@@ -72,6 +74,7 @@ export const EmergencyAlerts: React.FC<EmergencyAlertsProps> = ({
     setDescription('');
     setAssignedUnit('');
     setShowAddForm(false);
+    setSubmissionNotice('Incident logged successfully and added to the operations queue.');
   };
 
   const getSeverityStyle = (sev: IncidentSeverity) => {
@@ -171,6 +174,12 @@ export const EmergencyAlerts: React.FC<EmergencyAlertsProps> = ({
                 </p>
               )}
 
+              {submissionNotice && (
+                <p className="p-2.5 rounded text-xs bg-emerald-500/10 text-emerald-300 border border-emerald-500/20" role="status">
+                  {submissionNotice}
+                </p>
+              )}
+
               <div className="grid grid-cols-2 gap-3">
                 <div className="col-span-2">
                   <label htmlFor="inc-title" className="block text-xs font-medium text-slate-400 mb-1">Incident Title</label>
@@ -241,6 +250,12 @@ export const EmergencyAlerts: React.FC<EmergencyAlertsProps> = ({
                   />
                 </div>
               </div>
+
+              {formError && (
+                <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-2.5 text-[11px] text-emerald-300" role="status">
+                  Incident logged successfully. Review it in the incident queue.
+                </div>
+              )}
 
               <div className="flex justify-end gap-2.5 pt-2">
                 <button

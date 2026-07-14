@@ -30,8 +30,9 @@ export const MultilingualAssistant: React.FC<MultilingualAssistantProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inputText.trim() || isGenerating) return;
-    onSendMessage(inputText.trim());
+    const trimmedInput = inputText.trim();
+    if (!trimmedInput || isGenerating) return;
+    onSendMessage(trimmedInput);
     setInputText('');
   };
 
@@ -69,7 +70,7 @@ export const MultilingualAssistant: React.FC<MultilingualAssistantProps> = ({
       </div>
 
       {/* Chat Messages */}
-      <div className="flex-1 overflow-y-auto space-y-4 pr-1 min-h-[220px]" role="log" aria-label="AURA AI Assistant Message Log">
+      <div className="flex-1 overflow-y-auto space-y-4 pr-1 min-h-[220px]" role="log" aria-label="AURA AI Assistant Message Log" aria-live="polite">
         {messages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center px-6">
             <Bot className="w-10 h-10 stroke-1 text-slate-500 mb-2 animate-bounce" />

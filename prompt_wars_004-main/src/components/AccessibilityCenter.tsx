@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Eye, Type, Volume2, Mic, CheckCircle, VolumeX } from 'lucide-react';
 
 interface AccessibilityCenterProps {
@@ -28,6 +28,13 @@ export const AccessibilityCenter: React.FC<AccessibilityCenterProps> = ({
   const [speechActive, setSpeechActive] = useState(false);
   const [voiceText, setVoiceText] = useState('');
   const [ttsActive, setTtsActive] = useState(false);
+  const [statusMessage, setStatusMessage] = useState('Ready for assistive operations.');
+
+  useEffect(() => {
+    return () => {
+      window.speechSynthesis?.cancel();
+    };
+  }, []);
 
   // Text-To-Speech reader
   const handleReadScreen = () => {
@@ -45,10 +52,17 @@ export const AccessibilityCenter: React.FC<AccessibilityCenterProps> = ({
       }.`;
 
       const utterance = new SpeechSynthesisUtterance(textToRead);
-      utterance.onend = () => setTtsActive(false);
-      utterance.onerror = () => setTtsActive(false);
-      
+      utterance.onend = () => {
+        setTtsActive(false);
+        setStatusMessage('Assistive audio playback completed.');
+      };
+      utterance.onerror = () => {
+        setTtsActive(false);
+        setStatusMessage('Audio playback was interrupted.');
+      };
+
       setTtsActive(true);
+      setStatusMessage('Reading the current dashboard state aloud...');
       window.speechSynthesis.speak(utterance);
     }
   };
@@ -56,6 +70,7 @@ export const AccessibilityCenter: React.FC<AccessibilityCenterProps> = ({
   // Simulated Voice Command Speech-To-Text (safe, offline-ready fallback)
   const handleSimulateVoiceInput = () => {
     setSpeechActive(true);
+    setStatusMessage('Listening for a voice command...');
     const commands = [
       'Show east gate crowding checklist',
       'Check azteca metro station delays',
@@ -72,6 +87,7 @@ export const AccessibilityCenter: React.FC<AccessibilityCenterProps> = ({
       onVoiceCommandReceived(randomCommand);
       setSpeechActive(false);
       setVoiceText('');
+      setStatusMessage(`Processed voice command: ${randomCommand}`);
     }, 2800);
   };
 
@@ -157,6 +173,9 @@ export const AccessibilityCenter: React.FC<AccessibilityCenterProps> = ({
           <div className="space-y-3.5 bg-slate-950 p-4 rounded-xl border border-slate-800">
             <p className="text-[11px] text-slate-400 leading-normal">
               Convert the current active dashboard state, alerts, and operational briefings into speech audio.
+            </p>
+            <p className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-2 text-[10px] text-emerald-300" role="status">
+              {statusMessage}
             </p>
 
             <button
