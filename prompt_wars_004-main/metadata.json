@@ -1,0 +1,6 @@
+{
+  "name": "AURA Operations Hub",
+  "description": "FIFA World Cup 2026 Smart Stadiums & Tournament Operations Command Center. Real-time digital twin monitoring, predictive crowd simulation, incident response checklists, and multilingual AI assistance.",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
