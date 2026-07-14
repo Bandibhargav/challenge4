@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { memo, useState } from 'react';
 import { Incident, IncidentSeverity, IncidentStatus } from '../types';
 import { AlertCircle, Plus, Send, ShieldAlert, CheckSquare, Sparkles, Loader } from 'lucide-react';
 
@@ -15,7 +15,7 @@ interface EmergencyAlertsProps {
   generatingChecklistId: string | null;
 }
 
-export const EmergencyAlerts: React.FC<EmergencyAlertsProps> = ({
+export const EmergencyAlerts = memo<EmergencyAlertsProps>(({ 
   incidents,
   onAddIncident,
   onUpdateIncidentStatus,
@@ -379,4 +379,4 @@ export const EmergencyAlerts: React.FC<EmergencyAlertsProps> = ({
       </div>
     </div>
   );
-};
+});

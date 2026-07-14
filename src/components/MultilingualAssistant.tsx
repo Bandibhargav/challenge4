@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { memo, useState, useRef, useEffect } from 'react';
 import { ChatMessage } from '../types';
 import { SAMPLE_PROMPTS, OFFLINE_AI_ANSWERS } from '../utils/stadiumData';
 import { Bot, Send, Sparkles, Globe, RefreshCw, FileText, ExternalLink, ShieldCheck } from 'lucide-react';
@@ -14,7 +14,7 @@ interface MultilingualAssistantProps {
   isGenerating: boolean;
 }
 
-export const MultilingualAssistant: React.FC<MultilingualAssistantProps> = ({
+export const MultilingualAssistant = memo<MultilingualAssistantProps>(({ 
   messages,
   onSendMessage,
   isGenerating,
@@ -186,4 +186,4 @@ export const MultilingualAssistant: React.FC<MultilingualAssistantProps> = ({
       </form>
     </div>
   );
-};
+});

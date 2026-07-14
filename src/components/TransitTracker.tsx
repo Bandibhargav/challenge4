@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from 'react';
+import React, { memo } from 'react';
 import { TransitHub } from '../types';
 import { Bus, Train, Route, AlertCircle, Sparkles } from 'lucide-react';
 
@@ -11,7 +11,7 @@ interface TransitTrackerProps {
   hubs: TransitHub[];
 }
 
-export const TransitTracker: React.FC<TransitTrackerProps> = ({ hubs }) => {
+export const TransitTracker = memo<TransitTrackerProps>(({ hubs }) => {
   return (
     <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl" id="aura-transit-tracker">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 border-b border-slate-800 pb-4">
@@ -97,4 +97,4 @@ export const TransitTracker: React.FC<TransitTrackerProps> = ({ hubs }) => {
       </div>
     </div>
   );
-};
+});

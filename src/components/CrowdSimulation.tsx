@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { memo, useState, useMemo } from 'react';
 import { Users, AlertTriangle, TrendingUp, Zap, Clock } from 'lucide-react';
 
 interface CrowdSimulationProps {
@@ -13,7 +13,7 @@ interface CrowdSimulationProps {
   setCrowdArrivalRate: (rate: number) => void;
 }
 
-export const CrowdSimulation: React.FC<CrowdSimulationProps> = ({
+export const CrowdSimulation = memo<CrowdSimulationProps>(({ 
   simulationSpeed,
   setSimulationSpeed,
   crowdArrivalRate,
@@ -295,4 +295,4 @@ export const CrowdSimulation: React.FC<CrowdSimulationProps> = ({
       </div>
     </div>
   );
-};
+});

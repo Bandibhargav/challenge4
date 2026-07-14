@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { memo, useState } from 'react';
 import { StadiumSector, SectorStatus } from '../types';
 import { Shield, Thermometer, Users, LogIn, AlertCircle, RefreshCw } from 'lucide-react';
 
@@ -14,7 +14,7 @@ interface DigitalTwinProps {
   onRefreshMetrics: () => void;
 }
 
-export const DigitalTwin: React.FC<DigitalTwinProps> = ({
+export const DigitalTwin = memo<DigitalTwinProps>(({ 
   sectors,
   onSelectSector,
   selectedSector,
@@ -230,4 +230,4 @@ export const DigitalTwin: React.FC<DigitalTwinProps> = ({
       </div>
     </div>
   );
-};
+});

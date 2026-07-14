@@ -248,7 +248,7 @@ export default function App() {
     }
   };
 
-  const getFontSizeClass = () => {
+  const fontSizeClass = useMemo(() => {
     switch (fontSize) {
       case 'large':
         return 'text-scale-lg';
@@ -257,13 +257,13 @@ export default function App() {
       default:
         return 'text-scale-md';
     }
-  };
+  }, [fontSize]);
 
   return (
     <div
       className={`min-h-screen flex flex-col font-sans transition-all duration-300 ${
         highContrast ? 'bg-black text-yellow-300' : 'bg-slate-950 text-slate-100'
-      } ${getFontSizeClass()}`}
+      } ${fontSizeClass}`}
       id="root-viewport-container"
     >
       {/* Accessibility Quick Skiplink */}
