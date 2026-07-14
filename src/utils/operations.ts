@@ -11,6 +11,31 @@ export const normalizeChecklist = (value: string): string[] =>
 export const formatTimeLabel = (date: Date = new Date()): string =>
   date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
+export const truncateText = (value: string, maxLength: number): string => {
+  if (value.length <= maxLength) {
+    return value;
+  }
+
+  return `${value.slice(0, Math.max(0, maxLength - 3)).trimEnd()}...`;
+};
+
+export const buildAiPrompt = (userPrompt: string, context: Record<string, unknown> = {}): string => {
+  const normalizedPrompt = sanitizeText(userPrompt);
+  const contextLines = Object.entries(context)
+    .filter(([, value]) => value !== undefined && value !== null && value !== '')
+    .map(([key, value]) => `${key}: ${String(value)}`)
+    .join('\n');
+
+  const promptSections = [
+    'You are an operations copilot for a smart stadium.',
+    'Use the provided context to tailor your response.',
+    contextLines ? `Context:\n${contextLines}` : '',
+    `User request:\n${truncateText(normalizedPrompt, 900)}`,
+  ].filter(Boolean);
+
+  return truncateText(promptSections.join('\n\n'), 1300);
+};
+
 export const getIncidentFallbackChecklist = (title: string, location: string): string[] => {
   const titleLower = title.toLowerCase();
 

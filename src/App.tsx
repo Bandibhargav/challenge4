@@ -13,7 +13,7 @@ import { MultilingualAssistant } from './components/MultilingualAssistant';
 import { AccessibilityCenter } from './components/AccessibilityCenter';
 import { StadiumSector, Incident, IncidentStatus, TransitHub, ChatMessage } from './types';
 import { INITIAL_SECTORS, INITIAL_INCIDENTS, TRANSIT_HUBS } from './utils/stadiumData';
-import { normalizeChecklist, formatTimeLabel, getIncidentFallbackChecklist, getAiFallbackResponse } from './utils/operations';
+import { normalizeChecklist, formatTimeLabel, getIncidentFallbackChecklist, getAiFallbackResponse, buildAiPrompt } from './utils/operations';
 import { LayoutGrid, Bot, ShieldAlert, Route, Eye, Sparkles, ChevronRight } from 'lucide-react';
 
 export default function App() {
@@ -138,7 +138,12 @@ export default function App() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          prompt: `Generate an actionable crowd control and stadium operations safety checklist for this incident: ${incident.title}. Description: ${incident.description}. Location: ${incident.location}. Keep steps highly specific.`,
+          prompt: buildAiPrompt(`Generate an actionable crowd control and stadium operations safety checklist for this incident: ${incident.title}. Description: ${incident.description}. Location: ${incident.location}. Keep steps highly specific.`, {
+            stadiumOccupancy: computedTotalOccupancy,
+            incidentSeverity: incident.severity,
+            location: incident.location,
+            incidentTitle: incident.title,
+          }),
           context: { stadiumOccupancy: computedTotalOccupancy, incidentSeverity: incident.severity }
         }),
         signal: controller.signal,
@@ -200,7 +205,11 @@ export default function App() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          prompt: text,
+          prompt: buildAiPrompt(text, {
+            stadiumOccupancy: computedTotalOccupancy,
+            activeAlerts: activeAlertsCount,
+            transitDelayed: transitDelayCount,
+          }),
           context: {
             stadiumOccupancy: computedTotalOccupancy,
             activeAlerts: activeAlertsCount,
