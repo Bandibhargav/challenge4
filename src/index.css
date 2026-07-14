@@ -1,0 +1,46 @@
+@import "tailwindcss";
+
+@layer base {
+  /* Dynamic Accessibility Text Scalers */
+  .text-scale-lg {
+    font-size: 1.125rem;
+  }
+  .text-scale-lg h1 {
+    font-size: 1.75rem;
+  }
+  .text-scale-lg h2 {
+    font-size: 1.35rem;
+  }
+  .text-scale-lg p, .text-scale-lg span, .text-scale-lg button, .text-scale-lg input, .text-scale-lg select, .text-scale-lg textarea {
+    font-size: 0.875rem;
+  }
+
+  .text-scale-xl {
+    font-size: 1.25rem;
+  }
+  .text-scale-xl h1 {
+    font-size: 2rem;
+  }
+  .text-scale-xl h2 {
+    font-size: 1.5rem;
+  }
+  .text-scale-xl p, .text-scale-xl span, .text-scale-xl button, .text-scale-xl input, .text-scale-xl select, .text-scale-xl textarea {
+    font-size: 1rem;
+  }
+
+  /* Fade-in Animation utility */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+}
